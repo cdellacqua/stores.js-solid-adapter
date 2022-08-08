@@ -1,5 +1,5 @@
 import './style.css';
-import {useReadonlyStore, useStore} from './lib';
+import {useReadonlyStore, useReadonlyStores, useStore} from './lib';
 import {makeReadonlyStore, makeStore, ReadonlyStore} from 'universal-stores';
 import {render} from 'solid-js/web';
 import {createSignal, Show} from 'solid-js';
@@ -39,6 +39,15 @@ function ReadonlyCounter(props: {count$: ReadonlyStore<number>}) {
 	);
 }
 
+function Sum() {
+	const values = useReadonlyStores([count$, autoCount$]);
+	return (
+		<>
+			<h1>Sum: {values()[0] + values()[1]}</h1>
+		</>
+	);
+}
+
 function App() {
 	const [mountAutoCount, setMountAutoCount] = createSignal(true);
 	return (
@@ -49,6 +58,8 @@ function App() {
 			<div style="border-bottom: 1px solid gray; margin: 1rem 0" />
 			<Show when={mountAutoCount()}>
 				<ReadonlyCounter count$={autoCount$} />
+				<div style="border-bottom: 1px solid gray; margin: 1rem 0" />
+				<Sum />
 			</Show>
 			<button onClick={() => setMountAutoCount(!mountAutoCount())}>
 				{mountAutoCount() ? 'unmount auto counter' : 'mount auto counter'}

@@ -9,7 +9,7 @@ import {useReadonlyStore, useStore} from '../src/lib';
 import {cleanup, fireEvent, render, screen} from 'solid-testing-library';
 import {createEffect, createSignal} from 'solid-js';
 
-describe('hooks', () => {
+describe('basic hooks', () => {
 	afterEach(cleanup);
 
 	function ToJSON<T>(props: {store$: ReadonlyStore<T>}) {

@@ -1,5 +1,11 @@
 import {Accessor, createComputed, createSignal, onCleanup} from 'solid-js';
-import {ReadonlyStore, Store, Unsubscribe, Updater} from 'universal-stores';
+import {
+	makeDerivedStore,
+	ReadonlyStore,
+	Store,
+	Unsubscribe,
+	Updater,
+} from 'universal-stores';
 
 /**
  * Subscribe to a store, providing an accessor to get the value.
@@ -66,6 +72,52 @@ export function useReadonlyStore<T>(
 		unsubscribe?.();
 	});
 	return value;
+}
+
+/**
+ * Subscribe to one or more stores, providing an accessor for all their values.
+ *
+ * Example:
+ *
+ * ```tsx
+ * const firstNumber$ = makeStore(4);
+ * const secondNumber$ = makeStore(2);
+ *
+ * function Sum() {
+ * 	const values = useReadonlyStores([firstNumber$, secondNumber$]);
+ * 	return (
+ * 		<>
+ * 			<h1>{values()[0] + values()[1]}</h1>
+ * 		</>
+ * 	);
+ * }
+ * ```
+ *
+ * @param stores one or more stores to subscribe to.
+ * @returns an accessor to all the values contained in the stores.
+ */
+export function useReadonlyStores<T extends [unknown, ...unknown[]]>(
+	stores:
+		| {
+				[P in keyof T]: ReadonlyStore<T[P]>;
+		  }
+		| Accessor<{
+				[P in keyof T]: ReadonlyStore<T[P]>;
+		  }>,
+): Accessor<{
+	[P in keyof T]: T[P];
+}> {
+	const derive = (
+		sources: [ReadonlyStore<unknown>, ...ReadonlyStore<unknown>[]],
+	) => makeDerivedStore(sources, (x) => x);
+	const accessor = (
+		typeof stores === 'function' ? stores : () => stores
+	) as Accessor<{
+		[P in keyof T]: ReadonlyStore<T[P]>;
+	}>;
+	return useReadonlyStore(() => derive(accessor())) as Accessor<{
+		[P in keyof T]: T[P];
+	}>;
 }
 
 /**

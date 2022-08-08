@@ -85,3 +85,25 @@ function Counter() {
 	);
 }
 ```
+
+### useReadonlyStores
+
+`useReadonlyStores` can be used to observe multiple stores at once.
+It takes an array of `ReadonlyStore`s and/or `Store`s and returns an accessor to the array of values contained in them.
+
+```tsx
+import {makeStore} from 'universal-stores';
+import {useReadonlyStores} from '@universal-stores/solid-adapter';
+
+const firstNumber$ = makeStore(4);
+const secondNumber$ = makeStore(2);
+
+function Sum() {
+	const values = useReadonlyStores([firstNumber$, secondNumber$]);
+	return (
+		<>
+			<h1>{values()[0] + values()[1]}</h1>
+		</>
+	);
+}
+```
