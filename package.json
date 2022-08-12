@@ -34,7 +34,8 @@
 	"scripts": {
 		"coverage": "cross-env NODE_ENV=test jest --coverage",
 		"test": "cross-env NODE_ENV=test jest",
-		"dev": "vite",
+		"dev:hooks": "cross-env VITE_DEMO=hooks vite",
+		"dev:components": "vite",
 		"build": "vite build && tsc --project ./tsconfig.declarations.json",
 		"doc": "rimraf docs && typedoc --gitRevision main --readme none --plugin typedoc-plugin-markdown src/lib/index.ts",
 		"prepack": "npm run lint && npm run build && npm test && npm run doc",
