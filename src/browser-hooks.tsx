@@ -41,10 +41,10 @@ export function start(): void {
 	}
 
 	function Sum() {
-		const values = useReadonlyStores([count$, autoCount$]);
+		const [first, second] = useReadonlyStores([count$, autoCount$]);
 		return (
 			<>
-				<h1>Sum: {values()[0] + values()[1]}</h1>
+				<h1>Sum: {first() + second()}</h1>
 			</>
 		);
 	}

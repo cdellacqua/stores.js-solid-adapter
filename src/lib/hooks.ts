@@ -75,28 +75,44 @@ export function useReadonlyStore<T>(
 }
 
 /**
- * Subscribe to one or more stores, providing an accessor for all their values.
+ * Subscribe to multiple stores, providing an accessor to an object or an array of all their values.
  *
- * Example:
+ * Example using an object:
  *
  * ```tsx
  * const firstNumber$ = makeStore(4);
  * const secondNumber$ = makeStore(2);
  *
  * function Sum() {
- * 	const values = useReadonlyStores([firstNumber$, secondNumber$]);
+ * 	const {first, second} = useReadonlyStores({first: firstNumber$, second: secondNumber$});
  * 	return (
  * 		<>
- * 			<h1>{values()[0] + values()[1]}</h1>
+ * 			<h1>{first() + second()}</h1>
  * 		</>
  * 	);
  * }
  * ```
  *
- * @param stores one or more stores to subscribe to.
+ * Example using an array:
+ *
+ * ```tsx
+ * const firstNumber$ = makeStore(4);
+ * const secondNumber$ = makeStore(2);
+ *
+ * function Sum() {
+ * 	const [first, second] = useReadonlyStores([firstNumber$, secondNumber$]);
+ * 	return (
+ * 		<>
+ * 			<h1>{first() + second()}</h1>
+ * 		</>
+ * 	);
+ * }
+ * ```
+ *
+ * @param stores an object or an array of stores to subscribe to.
  * @returns an accessor to all the values contained in the stores.
  */
-export function useReadonlyStores<T extends [unknown, ...unknown[]]>(
+export function useReadonlyStores<T>(
 	stores:
 		| {
 				[P in keyof T]: ReadonlyStore<T[P]>;
@@ -104,20 +120,29 @@ export function useReadonlyStores<T extends [unknown, ...unknown[]]>(
 		| Accessor<{
 				[P in keyof T]: ReadonlyStore<T[P]>;
 		  }>,
-): Accessor<{
-	[P in keyof T]: T[P];
-}> {
-	const derive = (
-		sources: [ReadonlyStore<unknown>, ...ReadonlyStore<unknown>[]],
-	) => makeDerivedStore(sources, (x) => x);
+): {
+	[P in keyof T]: Accessor<T[P]>;
+} {
+	const derive = (sources: {
+		[P in keyof T]: ReadonlyStore<T[P]>;
+	}) => makeDerivedStore(sources, (x) => x);
 	const accessor = (
 		typeof stores === 'function' ? stores : () => stores
 	) as Accessor<{
 		[P in keyof T]: ReadonlyStore<T[P]>;
 	}>;
-	return useReadonlyStore(() => derive(accessor())) as Accessor<{
-		[P in keyof T]: T[P];
-	}>;
+	const derivedAccessor = useReadonlyStore(() => derive(accessor()));
+	const snapshot = derivedAccessor();
+	return (
+		Array.isArray(snapshot)
+			? snapshot.map((_, i) => () => derivedAccessor()[i as keyof T])
+			: Object.entries(snapshot).reduce((acc, [name]) => {
+					acc[name] = () => derivedAccessor()[name as keyof T];
+					return acc;
+			  }, {} as Record<string, unknown>)
+	) as {
+		[P in keyof T]: Accessor<T[P]>;
+	};
 }
 
 /**

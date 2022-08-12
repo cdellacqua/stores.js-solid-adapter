@@ -148,20 +148,20 @@ describe('basic hooks', () => {
 				</>
 			);
 		});
-		expect(store1$.nOfSubscriptions).toBe(1);
-		expect(store2$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(1);
+		expect(store2$.nOfSubscriptions()).toBe(0);
 		const btn = await screen.findByTitle('trigger');
 		const div = await screen.findByTitle('content');
 		fireEvent.click(btn);
 		expect(div.textContent).toBe(JSON.stringify(2));
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(1);
 	});
 
 	it('keeps track of the number of subscriptions', async () => {
 		const store1$ = makeStore(1);
 		const store2$ = makeStore(1);
-		expect(store1$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(0);
 
 		const {unmount} = render(() => {
 			const [prop, setProp] = createSignal(store1$);
@@ -177,19 +177,19 @@ describe('basic hooks', () => {
 			);
 		});
 
-		expect(store1$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(1);
 		store1$.set(2);
-		expect(store1$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(1);
 
 		const btn = await screen.findByTitle('trigger');
 		fireEvent.click(btn);
 
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(1);
 
 		unmount();
 
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(0);
 	});
 });

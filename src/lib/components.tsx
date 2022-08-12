@@ -1,3 +1,4 @@
+import {Accessor} from 'solid-js';
 import {JSX} from 'solid-js/jsx-runtime';
 import {ReadonlyStore, Store, Updater} from 'universal-stores';
 import {useReadonlyStore, useReadonlyStores, useStore} from './hooks';
@@ -74,7 +75,7 @@ export function WithReadonlyStore<T>(
 	return <>{props.children(value())}</>;
 }
 
-export type WithReadonlyStoresProps<T extends [unknown, ...unknown[]]> = {
+export type WithReadonlyStoresProps<T> = {
 	stores: {
 		[P in keyof T]: ReadonlyStore<T[P]>;
 	};
@@ -84,10 +85,26 @@ export type WithReadonlyStoresProps<T extends [unknown, ...unknown[]]> = {
 };
 
 /**
- * Subscribe to a one or more Store/ReadonlyStore and pass their values
+ * Subscribe to multiple stores and pass their values
  * to the children of this component.
  *
- * Example:
+ * Example using an object:
+ *
+ * ```tsx
+ * const firstNumber$ = makeStore(4);
+ * const secondNumber$ = makeStore(2);
+ *
+ * function Sum() {
+ * 	return (
+ * 		<WithReadonlyStores stores={{first: firstNumber$, second: secondNumber$}}>
+ * 			{({first, second}) => <h1>{first + second}</h1>}
+ * 		</WithReadonlyStores>
+ * 	);
+ * }
+ * ```
+ *
+ * Example using an array:
+ *
  * ```tsx
  * const firstNumber$ = makeStore(4);
  * const secondNumber$ = makeStore(2);
@@ -105,9 +122,23 @@ export type WithReadonlyStoresProps<T extends [unknown, ...unknown[]]> = {
  * @param props.children a render prop that takes an array of all the values contained in the stores as its parameter.
  * @returns {JSX.Element}
  */
-export function WithReadonlyStores<T extends [unknown, ...unknown[]]>(
+export function WithReadonlyStores<T>(
 	props: WithReadonlyStoresProps<T>,
 ): JSX.Element {
-	const values = useReadonlyStores<T>(() => props.stores);
-	return <>{props.children(values())}</>;
+	const accessors = useReadonlyStores<T>(() => props.stores);
+
+	const access = () =>
+		(Array.isArray(accessors)
+			? accessors.map((accessor) => accessor())
+			: Object.entries<Accessor<unknown>>(accessors).reduce(
+					(acc, [name, accessor]) => {
+						acc[name] = accessor();
+						return acc;
+					},
+					{} as Record<string, unknown>,
+			  )) as {
+			[P in keyof T]: T[P];
+		};
+
+	return <>{props.children(access())}</>;
 }

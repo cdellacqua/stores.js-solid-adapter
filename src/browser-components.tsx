@@ -57,13 +57,13 @@ export function start(): void {
 		return (
 			<>
 				<Counter />
-				<div style={{borderBottom: '1px solid gray', margin: '1rem 0'}} />
+				<div style="border-bottom: 1px solid gray; margin: 1rem 0" />
 				<ReadonlyCounter count$={count$} />
-				<div style={{borderBottom: '1px solid gray', margin: '1rem 0'}} />
+				<div style="border-bottom: 1px solid gray; margin: 1rem 0" />
 				<Show when={mountAutoCount()}>
 					<>
 						<ReadonlyCounter count$={autoCount$} />
-						<div style={{borderBottom: '1px solid gray', margin: '1rem 0'}} />
+						<div style="border-bottom: 1px solid gray; margin: 1rem 0" />
 						<Sum />
 					</>
 				</Show>

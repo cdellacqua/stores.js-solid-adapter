@@ -1,18 +1,30 @@
 import {makeReadonlyStore, makeStore, ReadonlyStore} from 'universal-stores';
 import {useReadonlyStores} from '../src/lib';
 import {cleanup, fireEvent, render, screen} from 'solid-testing-library';
-import {createSignal} from 'solid-js';
+import {Accessor, createSignal} from 'solid-js';
 
 describe('complex hooks', () => {
 	afterEach(cleanup);
 
-	function ToJSON<T extends [unknown, ...unknown[]]>(props: {
+	function ToJSON<T>(props: {
 		stores: {
 			[P in keyof T]: ReadonlyStore<T[P]>;
 		};
 	}) {
-		const values = useReadonlyStores(() => props.stores);
-		return <>{JSON.stringify(values())}</>;
+		const accessors = useReadonlyStores(() => props.stores);
+		const access = () =>
+			(Array.isArray(accessors)
+				? accessors.map((accessor) => accessor())
+				: Object.entries<Accessor<unknown>>(accessors).reduce(
+						(acc, [name, accessor]) => {
+							acc[name] = accessor();
+							return acc;
+						},
+						{} as Record<string, unknown>,
+				  )) as {
+				[P in keyof T]: T[P];
+			};
+		return <>{JSON.stringify(access())}</>;
 	}
 
 	it('checks that a component gets the initial value of multiple stores containing numbers', () => {
@@ -75,20 +87,20 @@ describe('complex hooks', () => {
 				</>
 			);
 		});
-		expect(store1$.nOfSubscriptions).toBe(1);
-		expect(store2$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(1);
+		expect(store2$.nOfSubscriptions()).toBe(0);
 		const btn = await screen.findByTitle('trigger');
 		const div = await screen.findByTitle('content');
 		fireEvent.click(btn);
 		expect(div.textContent).toBe(JSON.stringify([2]));
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(1);
 	});
 
 	it('keeps track of the number of subscriptions', async () => {
 		const store1$ = makeStore(1);
 		const store2$ = makeStore(1);
-		expect(store1$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(0);
 
 		const {unmount} = render(() => {
 			const [prop, setProp] = createSignal(store1$);
@@ -104,19 +116,19 @@ describe('complex hooks', () => {
 			);
 		});
 
-		expect(store1$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(1);
 		store1$.set(2);
-		expect(store1$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(1);
 
 		const btn = await screen.findByTitle('trigger');
 		fireEvent.click(btn);
 
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(1);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(1);
 
 		unmount();
 
-		expect(store1$.nOfSubscriptions).toBe(0);
-		expect(store2$.nOfSubscriptions).toBe(0);
+		expect(store1$.nOfSubscriptions()).toBe(0);
+		expect(store2$.nOfSubscriptions()).toBe(0);
 	});
 });
