@@ -75,25 +75,9 @@ export function useReadonlyStore<T>(
 }
 
 /**
- * Subscribe to multiple stores, providing an accessor to an object or an array of all their values.
+ * Subscribe to multiple stores, providing an accessor to an array of all their values.
  *
- * Example using an object:
- *
- * ```tsx
- * const firstNumber$ = makeStore(4);
- * const secondNumber$ = makeStore(2);
- *
- * function Sum() {
- * 	const {first, second} = useReadonlyStores({first: firstNumber$, second: secondNumber$});
- * 	return (
- * 		<>
- * 			<h1>{first() + second()}</h1>
- * 		</>
- * 	);
- * }
- * ```
- *
- * Example using an array:
+ * Example:
  *
  * ```tsx
  * const firstNumber$ = makeStore(4);
@@ -109,7 +93,43 @@ export function useReadonlyStore<T>(
  * }
  * ```
  *
- * @param stores an object or an array of stores to subscribe to.
+ * @param stores an array of stores to subscribe to.
+ * @returns an accessor to all the values contained in the stores.
+ */
+export function useReadonlyStores<
+	T extends unknown[] | [unknown, ...unknown[]],
+>(
+	stores:
+		| {
+				[P in keyof T]: ReadonlyStore<T[P]>;
+		  }
+		| Accessor<{
+				[P in keyof T]: ReadonlyStore<T[P]>;
+		  }>,
+): {
+	[P in keyof T]: Accessor<T[P]>;
+};
+
+/**
+ * Subscribe to multiple stores, providing an accessor to an object containing all their values.
+ *
+ * Example:
+ *
+ * ```tsx
+ * const firstNumber$ = makeStore(4);
+ * const secondNumber$ = makeStore(2);
+ *
+ * function Sum() {
+ * 	const {first, second} = useReadonlyStores({first: firstNumber$, second: secondNumber$});
+ * 	return (
+ * 		<>
+ * 			<h1>{first() + second()}</h1>
+ * 		</>
+ * 	);
+ * }
+ * ```
+ *
+ * @param stores an object containing the stores to subscribe to.
  * @returns an accessor to all the values contained in the stores.
  */
 export function useReadonlyStores<T>(
@@ -122,7 +142,11 @@ export function useReadonlyStores<T>(
 		  }>,
 ): {
 	[P in keyof T]: Accessor<T[P]>;
-} {
+};
+
+export function useReadonlyStores<T>(
+	stores: object | Accessor<object>,
+): unknown {
 	const derive = (sources: {
 		[P in keyof T]: ReadonlyStore<T[P]>;
 	}) => makeDerivedStore(sources, (x) => x);

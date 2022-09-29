@@ -88,22 +88,7 @@ export type WithReadonlyStoresProps<T> = {
  * Subscribe to multiple stores and pass their values
  * to the children of this component.
  *
- * Example using an object:
- *
- * ```tsx
- * const firstNumber$ = makeStore(4);
- * const secondNumber$ = makeStore(2);
- *
- * function Sum() {
- * 	return (
- * 		<WithReadonlyStores stores={{first: firstNumber$, second: secondNumber$}}>
- * 			{({first, second}) => <h1>{first + second}</h1>}
- * 		</WithReadonlyStores>
- * 	);
- * }
- * ```
- *
- * Example using an array:
+ * Example:
  *
  * ```tsx
  * const firstNumber$ = makeStore(4);
@@ -122,6 +107,37 @@ export type WithReadonlyStoresProps<T> = {
  * @param props.children a render prop that takes an array of all the values contained in the stores as its parameter.
  * @returns {JSX.Element}
  */
+export function WithReadonlyStores<
+	T extends unknown[] | [unknown, ...unknown[]],
+>(props: WithReadonlyStoresProps<T>): JSX.Element;
+
+/**
+ * Subscribe to multiple stores and pass their values
+ * to the children of this component.
+ *
+ * Example:
+ *
+ * ```tsx
+ * const firstNumber$ = makeStore(4);
+ * const secondNumber$ = makeStore(2);
+ *
+ * function Sum() {
+ * 	return (
+ * 		<WithReadonlyStores stores={{first: firstNumber$, second: secondNumber$}}>
+ * 			{({first, second}) => <h1>{first + second}</h1>}
+ * 		</WithReadonlyStores>
+ * 	);
+ * }
+ * ```
+ *
+ * @param props.stores a collection of Store and/or ReadonlyStore.
+ * @param props.children a render prop that takes an object containing all the values contained in the stores as its parameter.
+ * @returns {JSX.Element}
+ */
+export function WithReadonlyStores<T>(
+	props: WithReadonlyStoresProps<T>,
+): JSX.Element;
+
 export function WithReadonlyStores<T>(
 	props: WithReadonlyStoresProps<T>,
 ): JSX.Element {

@@ -131,4 +131,32 @@ describe('complex hooks', () => {
 		expect(store1$.nOfSubscriptions()).toBe(0);
 		expect(store2$.nOfSubscriptions()).toBe(0);
 	});
+
+	it('tests the correct type inference on useReadonlyStores when using an object', () => {
+		const number$ = makeStore(4);
+		const text$ = makeStore('hello');
+
+		const {unmount} = render(() => {
+			const {number, text} = useReadonlyStores({number: number$, text: text$});
+			return <h1>{number().toFixed(0) + text().toLowerCase()}</h1>;
+		});
+
+		expect(document.querySelector('h1')?.textContent).toBe('4hello');
+
+		unmount();
+	});
+
+	it('tests the correct type inference on useReadonlyStores when using an array', () => {
+		const number$ = makeStore(4);
+		const text$ = makeStore('hello');
+
+		const {unmount} = render(() => {
+			const [number, text] = useReadonlyStores([number$, text$]);
+			return <h1>{number().toFixed(0) + text().toLowerCase()}</h1>;
+		});
+
+		expect(document.querySelector('h1')?.textContent).toBe('4hello');
+
+		unmount();
+	});
 });

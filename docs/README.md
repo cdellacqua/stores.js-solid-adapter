@@ -137,22 +137,7 @@ ___
 Subscribe to multiple stores and pass their values
 to the children of this component.
 
-Example using an object:
-
-```tsx
-const firstNumber$ = makeStore(4);
-const secondNumber$ = makeStore(2);
-
-function Sum() {
-	return (
-		<WithReadonlyStores stores={{first: firstNumber$, second: secondNumber$}}>
-			{({first, second}) => <h1>{first + second}</h1>}
-		</WithReadonlyStores>
-	);
-}
-```
-
-Example using an array:
+Example:
 
 ```tsx
 const firstNumber$ = makeStore(4);
@@ -162,6 +147,46 @@ function Sum() {
 	return (
 		<WithReadonlyStores stores={[firstNumber$, secondNumber$]}>
 			{([firstNumber, secondNumber]) => <h1>{firstNumber + secondNumber}</h1>}
+		</WithReadonlyStores>
+	);
+}
+```
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`unknown`, ...unknown[]] \| `unknown`[] |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `props` | [`WithReadonlyStoresProps`](README.md#withreadonlystoresprops)<`T`\> |
+
+#### Returns
+
+`JSX.Element`
+
+#### Defined in
+
+[components.tsx:110](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/components.tsx#L110)
+
+▸ **WithReadonlyStores**<`T`\>(`props`): `JSX.Element`
+
+Subscribe to multiple stores and pass their values
+to the children of this component.
+
+Example:
+
+```tsx
+const firstNumber$ = makeStore(4);
+const secondNumber$ = makeStore(2);
+
+function Sum() {
+	return (
+		<WithReadonlyStores stores={{first: firstNumber$, second: secondNumber$}}>
+			{({first, second}) => <h1>{first + second}</h1>}
 		</WithReadonlyStores>
 	);
 }
@@ -185,7 +210,7 @@ function Sum() {
 
 #### Defined in
 
-[components.tsx:125](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/components.tsx#L125)
+[components.tsx:137](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/components.tsx#L137)
 
 ___
 
@@ -311,16 +336,16 @@ ___
 
 ▸ **useReadonlyStores**<`T`\>(`stores`): { [P in keyof T]: Accessor<T[P]\> }
 
-Subscribe to multiple stores, providing an accessor to an object or an array of all their values.
+Subscribe to multiple stores, providing an accessor to an array of all their values.
 
-Example using an object:
+Example:
 
 ```tsx
 const firstNumber$ = makeStore(4);
 const secondNumber$ = makeStore(2);
 
 function Sum() {
-	const {first, second} = useReadonlyStores({first: firstNumber$, second: secondNumber$});
+	const [first, second] = useReadonlyStores([firstNumber$, secondNumber$]);
 	return (
 		<>
 			<h1>{first() + second()}</h1>
@@ -329,14 +354,40 @@ function Sum() {
 }
 ```
 
-Example using an array:
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `T` | extends [`unknown`, ...unknown[]] \| `unknown`[] |
+
+#### Parameters
+
+| Name | Type | Description |
+| :------ | :------ | :------ |
+| `stores` | { [P in string \| number \| symbol]: ReadonlyStore<T[P]\> } \| `Accessor`<{ [P in string \| number \| symbol]: ReadonlyStore<T[P]\> }\> | an array of stores to subscribe to. |
+
+#### Returns
+
+{ [P in keyof T]: Accessor<T[P]\> }
+
+an accessor to all the values contained in the stores.
+
+#### Defined in
+
+[hooks.ts:99](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/hooks.ts#L99)
+
+▸ **useReadonlyStores**<`T`\>(`stores`): { [P in keyof T]: Accessor<T[P]\> }
+
+Subscribe to multiple stores, providing an accessor to an object containing all their values.
+
+Example:
 
 ```tsx
 const firstNumber$ = makeStore(4);
 const secondNumber$ = makeStore(2);
 
 function Sum() {
-	const [first, second] = useReadonlyStores([firstNumber$, secondNumber$]);
+	const {first, second} = useReadonlyStores({first: firstNumber$, second: secondNumber$});
 	return (
 		<>
 			<h1>{first() + second()}</h1>
@@ -355,7 +406,7 @@ function Sum() {
 
 | Name | Type | Description |
 | :------ | :------ | :------ |
-| `stores` | { [P in string \| number \| symbol]: ReadonlyStore<T[P]\> } \| `Accessor`<{ [P in string \| number \| symbol]: ReadonlyStore<T[P]\> }\> | an object or an array of stores to subscribe to. |
+| `stores` | { [P in string \| number \| symbol]: ReadonlyStore<T[P]\> } \| `Accessor`<{ [P in string \| number \| symbol]: ReadonlyStore<T[P]\> }\> | an object containing the stores to subscribe to. |
 
 #### Returns
 
@@ -365,7 +416,7 @@ an accessor to all the values contained in the stores.
 
 #### Defined in
 
-[hooks.ts:115](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/hooks.ts#L115)
+[hooks.ts:135](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/hooks.ts#L135)
 
 ___
 
@@ -413,4 +464,4 @@ a tuple containing the accessor to the store value and a setter.
 
 #### Defined in
 
-[hooks.ts:174](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/hooks.ts#L174)
+[hooks.ts:198](https://github.com/cdellacqua/stores.js-solid-adapter/blob/main/src/lib/hooks.ts#L198)
